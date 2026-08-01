@@ -242,11 +242,12 @@
             padding-top: 3px;
         }
 
+        /* تعديل تصميم المنشأ: خط أصغر ولون باهت */
         .card-origin {
             text-align: right; 
-            font-size: 14.5px; 
-            color: #111111; 
-            font-weight: 900; 
+            font-size: 11px; 
+            color: #777777; 
+            font-weight: 600; 
             padding-bottom: 2px;
         }
 
@@ -312,7 +313,7 @@
     <!-- ================= شاشة تسجيل الدخول ================= -->
     <div id="loginScreen" class="login-wrapper">
         <div class="login-box">
-            <h2>تسجيل الدخول - جسور</h2>
+            <h2>تسجيل الدخول</h2>
             <div id="loginError" class="login-error">اسم المستخدم أو كلمة المرور غير صحيحة!</div>
             <div class="login-group">
                 <label>اسم المستخدم</label>
@@ -329,7 +330,7 @@
     <!-- ================= محتوى التطبيق الرئيسي ================= -->
     <div id="appContent">
         <div class="no-print">
-            <h2 style="margin-top:0; color:#ff5722;">منظومة بطاقات عرض الأسعار - جسور</h2>
+            <h2 style="margin-top:0; color:#ff5722;">بطاقه عرض الاسعار - جسور</h2>
             <div class="form-grid">
                 <div class="form-group">
                     <label>اسم المنتج</label>
@@ -373,7 +374,6 @@
             if (user === 'adminadmin' && pass === 'testtest') {
                 errorDiv.style.display = 'none';
                 
-                // الاستعانة بـ try/catch لتجنب توقف الصفحة إذا كان المتصفح يحظر الجلسات المحلية
                 try {
                     sessionStorage.setItem('jusoor_auth', 'true');
                 } catch (e) {
