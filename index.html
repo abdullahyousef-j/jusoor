@@ -1,660 +1,538 @@
 <!DOCTYPE html>
-<html lang="ar" dir="rtl">
+<html dir="rtl" lang="ar">
 <head>
     <meta charset="UTF-8">
-    <title>عرض سعر جسور</title>
+    <title>طباعة بطاقات الأسعار - جسور</title>
     <style>
-        @import url('https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;900&display=swap');
-
-        * {
-            box-sizing: border-box;
-            font-family: 'Cairo', sans-serif;
+        body { 
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; 
+            background: #f8f9fa; 
+            margin: 0; 
+            padding: 20px; 
         }
 
-        body {
-            margin: 0;
-            padding: 20px;
-            background-color: #f4f6f9;
-            color: #334155;
-        }
-
-        /* شاشة تسجيل الدخول */
-        #login-screen {
+        /* ------------------ شاشة تسجيل الدخول ------------------ */
+        .login-wrapper {
             display: flex;
             justify-content: center;
             align-items: center;
             min-height: 80vh;
         }
-
-        .login-card {
+        .login-box {
             background: #ffffff;
-            padding: 30px;
+            padding: 32px;
             border-radius: 12px;
-            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+            box-shadow: 0 4px 20px rgba(0,0,0,0.08);
+            border: 1px solid #ffe0b2;
             width: 100%;
-            max-width: 400px;
+            max-width: 360px;
             text-align: center;
         }
-
-        .login-card h2 {
-            color: #ff5100;
+        .login-box h2 {
+            color: #ff5722;
+            margin-top: 0;
             margin-bottom: 20px;
             font-size: 22px;
-            border-bottom: 2px solid #ffedd5;
-            padding-bottom: 10px;
         }
-
-        .login-error {
-            color: #ef4444;
-            font-size: 13px;
-            margin-bottom: 10px;
-            display: none;
-        }
-
-        /* لوحة التطبيق الأساسية (مخفية حتى يتم تسجيل الدخول) */
-        #app-screen {
-            display: none;
-        }
-
-        .app-container {
-            max-width: 1200px;
-            margin: 0 auto;
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 20px;
-        }
-
-        @media (max-width: 900px) {
-            .app-container {
-                grid-template-columns: 1fr;
-            }
-        }
-
-        .panel {
-            background: #ffffff;
-            padding: 20px;
-            border-radius: 12px;
-            box-shadow: 0 4px 12px rgba(0,0,0,0.08);
-        }
-
-        .panel-header {
+        .login-group {
             display: flex;
-            justify-content: space-between;
-            align-items: center;
-            border-bottom: 2px solid #ffedd5;
-            padding-bottom: 10px;
+            flex-direction: column;
+            text-align: right;
             margin-bottom: 15px;
         }
-
-        .panel-header h2 {
-            margin: 0;
-            color: #ff5100;
-            font-size: 20px;
-            border: none;
-            padding: 0;
-        }
-
-        .btn-logout {
-            background: #ef4444;
-            color: white;
-            border: none;
-            padding: 5px 12px;
-            border-radius: 6px;
-            font-size: 12px;
-            cursor: pointer;
-            font-weight: 700;
-        }
-
-        .btn-logout:hover {
-            background: #dc2626;
-        }
-
-        .form-group {
-            margin-bottom: 12px;
-        }
-
-        label {
-            display: block;
+        .login-group label {
             font-size: 13px;
-            font-weight: 700;
-            margin-bottom: 5px;
-            color: #475569;
+            font-weight: bold;
+            margin-bottom: 6px;
+            color: #333;
         }
-
-        input, textarea {
-            width: 100%;
+        .login-group input {
             padding: 10px;
-            border: 1px solid #cbd5e1;
-            border-radius: 8px;
+            border: 1px solid #ffccbc;
+            border-radius: 6px;
             font-size: 14px;
             outline: none;
-            transition: border-color 0.2s;
         }
-
-        input:focus, textarea:focus {
-            border-color: #ff5100;
+        .login-group input:focus {
+            border-color: #ff5722;
         }
-
-        textarea {
-            resize: vertical;
-            height: 70px;
-        }
-
-        .btn {
-            background-color: #ff5100;
-            color: #ffffff;
-            border: none;
-            padding: 10px 20px;
-            border-radius: 8px;
-            font-size: 14px;
-            font-weight: 700;
-            cursor: pointer;
+        .login-btn {
             width: 100%;
-            transition: background-color 0.2s;
+            background: #ff5722;
+            color: white;
+            padding: 12px;
+            border: none;
+            border-radius: 6px;
+            font-weight: bold;
+            font-size: 15px;
+            cursor: pointer;
+            transition: 0.2s;
             margin-top: 5px;
         }
-
-        .btn:hover {
-            background-color: #e04500;
-        }
-
-        .btn-print {
-            background-color: #0f172a;
-            margin-top: 15px;
-        }
-
-        .btn-print:hover {
-            background-color: #1e293b;
-        }
-
-        .queue-list {
-            max-height: 350px;
-            overflow-y: auto;
-            border: 1px solid #e2e8f0;
-            border-radius: 8px;
-            padding: 10px;
-            background: #f8fafc;
-        }
-
-        .queue-item {
-            background: #ffffff;
-            padding: 10px;
-            border-radius: 6px;
-            border: 1px solid #e2e8f0;
-            margin-bottom: 8px;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-        }
-
-        .queue-item-info {
-            font-size: 12px;
-        }
-
-        .queue-item-info strong {
-            color: #ff5100;
-            display: block;
-            font-size: 14px;
-        }
-
-        .btn-delete {
-            background: #ef4444;
-            color: white;
-            border: none;
-            padding: 5px 10px;
-            border-radius: 5px;
-            cursor: pointer;
-            font-size: 12px;
-        }
-
-        .btn-delete:hover {
-            background: #dc2626;
-        }
-
-        #print-area {
+        .login-btn:hover { background: #e64a19; }
+        .login-error {
+            color: #d32f2f;
+            font-size: 13px;
+            margin-bottom: 12px;
             display: none;
+            font-weight: bold;
         }
 
-        @media print {
-            body * {
-                visibility: hidden;
-            }
-            #print-area, #print-area * {
-                visibility: visible;
-            }
-            #print-area {
-                display: block;
-                position: absolute;
-                top: 0;
-                right: 0;
-                width: 100%;
-            }
-            @page {
-                size: 105mm 148mm;
-                margin: 0;
-            }
-            .page-break {
-                page-break-after: always;
-                break-after: page;
-            }
+        /* ------------------ واجهة التطبيق ------------------ */
+        #appContent {
+            display: none; /* مخفي لحين تسجيل الدخول */
         }
 
-        .card-container {
-            width: 105mm;
-            height: 148mm;
-            background: #ffffff;
-            position: relative;
-            overflow: hidden;
-            box-sizing: border-box;
-            display: flex;
-            flex-direction: column;
-            justify-content: space-between;
-            padding: 6mm;
-            padding-top: 0;
-            -webkit-print-color-adjust: exact;
-            print-color-adjust: exact;
+        .no-print { 
+            background: #ffffff; 
+            padding: 24px; 
+            border-radius: 12px; 
+            max-width: 850px; 
+            margin: 0 auto 30px auto; 
+            box-shadow: 0 4px 15px rgba(0,0,0,0.05); 
+            border: 1px solid #ffe0b2;
         }
-
-        .top-banner {
-            width: calc(100% + 12mm);
-            margin-right: -6mm;
-            margin-left: -6mm;
-            height: 16mm;
-            background-color: #ff5100 !important;
-            display: flex;
-            align-items: center;
-            justify-content: flex-start;
-            padding-right: 10mm;
-            color: #ffffff;
-            font-size: 22px;
-            font-weight: 900;
-            letter-spacing: 1.2px;
-            margin-bottom: 3mm;
-            position: relative;
-            -webkit-print-color-adjust: exact;
-            print-color-adjust: exact;
+        .form-grid { 
+            display: grid; 
+            grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); 
+            gap: 15px; 
+            margin-bottom: 20px; 
         }
-
-        .top-banner::after {
-            content: '';
-            position: absolute;
-            bottom: 0;
-            left: 0;
-            width: 100%;
-            height: 1.5mm;
-            background: rgba(0, 0, 0, 0.15);
+        .form-group { 
+            display: flex; 
+            flex-direction: column; 
         }
-
-        .header-info-section {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 3mm;
+        .form-group label { 
+            font-size: 14px; 
+            font-weight: bold; 
+            margin-bottom: 6px; 
+            color: #212529;
         }
-
-        .product-name {
-            font-size: 18px;
-            font-weight: 900;
-            color: #1e293b;
-            background: #f8fafc;
-            padding: 2.5mm 5mm;
-            border-radius: 8px;
-            border: 1px solid #e2e8f0;
-            -webkit-print-color-adjust: exact;
-            print-color-adjust: exact;
-            width: 100%;
-            text-align: right;
+        .form-group input { 
+            padding: 10px; 
+            border: 1px solid #ffccbc; 
+            border-radius: 6px; 
+            font-size: 14px;
+            outline: none;
         }
-
-        .card-body {
-            display: flex;
-            gap: 3mm;
-            flex: 1;
-            align-items: stretch;
-            margin-bottom: 3mm;
+        .form-group input:focus {
+            border-color: #ff5722;
         }
-
-        .left-content-area {
-            flex: 1;
-            display: flex;
-            flex-direction: column;
-            justify-content: flex-start;
-        }
-
-        .product-info-box {
-            background: #fffaf5 !important;
-            border: 1px solid #ffedd5;
-            border-radius: 8px;
-            padding: 5mm;
-            text-align: right;
-            height: 100%;
-            box-sizing: border-box;
-            display: flex;
-            flex-direction: column;
-            justify-content: space-between;
-            -webkit-print-color-adjust: exact;
-            print-color-adjust: exact;
-        }
-
-        .product-info-title {
-            font-size: 16px;
-            font-weight: 900;
-            color: #ff5100;
-            margin-bottom: 2mm;
-        }
-
-        .product-info-text {
+        .btn { 
+            padding: 12px 20px; 
+            border: none; 
+            border-radius: 6px; 
             font-size: 15px;
-            color: #1e293b;
-            line-height: 1.7;
-            font-weight: 700;
-            white-space: pre-wrap;
-            flex: 1;
+            font-weight: bold; 
+            cursor: pointer; 
+            transition: 0.2s;
+        }
+        .btn-add { 
+            background: #ff5722; 
+            color: white; 
+        }
+        .btn-add:hover { background: #e64a19; }
+        .btn-print { 
+            background: #2e7d32; 
+            color: white; 
+            margin-top: 10px; 
+            width: 100%; 
+            font-size: 17px; 
+        }
+        .btn-print:hover { background: #236627; }
+        
+        .print-container { 
+            display: flex; 
+            flex-wrap: wrap; 
+            gap: 15px; 
+            justify-content: center; 
+        }
+        
+        .card-container-box {
+            position: relative;
+            display: inline-block;
         }
 
-        .product-code-box {
-            background: #ffffff !important;
-            border: 2px solid #ff5100;
-            border-radius: 6px;
-            padding: 3mm 5mm;
-            text-align: center;
-            align-self: flex-start;
-            margin-top: 3mm;
-            -webkit-print-color-adjust: exact;
-            print-color-adjust: exact;
+        .card-actions {
+            position: absolute;
+            top: -12px;
+            left: 5px;
+            display: none;
+            gap: 4px;
+            z-index: 10;
         }
-
-        .product-code-label {
+        .card-container-box:hover .card-actions {
+            display: flex;
+        }
+        .action-btn {
+            background: #333;
+            color: #fff;
+            border: none;
+            padding: 2px 6px;
             font-size: 10px;
-            color: #64748b;
-            font-weight: 700;
-            display: block;
-            line-height: 1;
-            margin-bottom: 1mm;
+            cursor: pointer;
+            border-radius: 3px;
+        }
+        .action-btn.edit { background: #0288d1; }
+        .action-btn.delete { background: #d32f2f; }
+        .action-btn:hover { opacity: 0.85; }
+
+        .card-wrapper {
+            position: relative; 
+            width: 6cm; 
+            height: 4cm; 
+            background-color: #ffffff; 
+            border-radius: 0; 
+            padding: 36px 8px 6px 8px; 
+            border: 1px solid #ffccbc; 
+            box-sizing: border-box;
+            page-break-inside: avoid;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
         }
 
-        .product-code-value {
-            font-size: 17px;
-            font-weight: 900;
-            color: #ff5100;
+        .card-header {
+            position: absolute; 
+            top: 0; 
+            left: 0; 
+            right: 0; 
+            background: #ff5722; 
+            color: #ffffff; 
+            padding: 4px 8px; 
+            font-size: 15px; 
+            font-weight: 900; 
+            text-align: right; 
+            border-radius: 0; 
+        }
+
+        .card-main {
+            display: flex;
+            flex-direction: column;
+            gap: 2px;
+        }
+
+        .card-code {
+            text-align: right; 
+            font-size: 21px; 
+            color: #ff5722; 
+            font-family: 'Courier New', Courier, monospace; 
+            font-weight: 900; 
             letter-spacing: 0.5px;
             line-height: 1;
+            margin-top: 4px; 
         }
 
-        .discount-box {
-            width: 22mm;
-            background: linear-gradient(135deg, #ff5100, #e04500) !important;
-            color: #ffffff;
-            border-radius: 0;
+        .card-title {
+            text-align: right; 
+            margin: 0; 
+            color: #111111; 
+            font-size: 14px; 
+            font-weight: 900; 
+            line-height: 1.15;
+            max-height: 2.3em;
+            overflow: hidden;
+        }
+
+        .card-bottom {
             display: flex;
-            justify-content: center;
-            align-items: center;
-            padding: 0;
-            margin-left: -6mm; 
-            margin-top: 0;     
-            margin-bottom: 0;   
-            -webkit-print-color-adjust: exact;
-            print-color-adjust: exact;
+            justify-content: space-between;
+            align-items: flex-end;
+            border-top: 1.5px dashed #ffccbc;
+            padding-top: 3px;
         }
 
-        .discount-percentage {
-            font-size: 22px;
-            font-weight: 900;
-            writing-mode: vertical-rl;
-            text-orientation: mixed;
-            letter-spacing: 1px;
-            line-height: 1;
-            transform: rotate(180deg);
-            text-align: center;
+        .card-origin {
+            text-align: right; 
+            font-size: 14.5px; 
+            color: #111111; 
+            font-weight: 900; 
+            padding-bottom: 2px;
         }
 
-        .price-section {
-            width: calc(100% + 12mm);
-            margin-right: -6mm;
-            margin-left: -6mm;
-            background: #ff5100 !important;
-            color: #ffffff;
+        .card-prices {
+            text-align: left; 
+        }
+
+        .old-price-value {
+            color: #d32f2f; 
+            font-size: 14px; 
+            font-weight: 900; 
+            display: block; 
+            margin-bottom: 0px; 
+            direction: ltr; 
+            text-align: left;
+        }
+
+        .new-price-value {
+            color: #ff5722; 
+            font-size: 26px; 
+            font-weight: 900; 
+            line-height: 1; 
+            direction: ltr; 
+            text-align: left;
+        }
+
+        .card-prices.single-price {
             display: flex;
-            justify-content: space-around;
             align-items: center;
-            padding: 4mm 0;
-            -webkit-print-color-adjust: exact;
-            print-color-adjust: exact;
+            height: 100%;
+        }
+        .card-prices.single-price .new-price-value {
+            font-size: 30px;
         }
 
-        .price-box {
-            text-align: center;
-        }
-
-        .price-label {
-            font-size: 11px;
-            color: #ffedd5;
-            font-weight: 700;
-            margin-bottom: 1mm;
-        }
-
-        .old-price {
-            font-size: 18px;
-            color: #ffd8cc;
-            text-decoration: line-through;
-            font-weight: 800;
-        }
-
-        .new-price {
-            font-size: 28px;
-            color: #ffffff;
-            font-weight: 900;
-            line-height: 1.1;
-        }
-
-        .currency {
-            font-size: 13px;
-            font-weight: 900;
-            margin-right: 2px;
+        /* إعدادات الطباعة للـ PDF */
+        @media print {
+            @page {
+                margin: 0; 
+            }
+            #loginScreen { display: none !important; }
+            .no-print { display: none !important; }
+            .card-actions { display: none !important; }
+            body { background: white; padding: 10px; }
+            .print-container { 
+                gap: 10px; 
+                justify-content: flex-start;
+            }
+            .card-wrapper {
+                box-shadow: none;
+                border: 1px solid #ccc;
+            }
+            
+            * {
+                -webkit-print-color-adjust: exact !important;
+                print-color-adjust: exact !important;
+            }
         }
     </style>
 </head>
 <body>
 
-    <!-- شاشة تسجيل الدخول -->
-    <div id="login-screen">
-        <div class="login-card">
-            <h2>تسجيل دخول - عرض سعر جسور</h2>
+    <!-- ================= شاشة تسجيل الدخول ================= -->
+    <div id="loginScreen" class="login-wrapper">
+        <div class="login-box">
+            <h2>تسجيل الدخول - جسور</h2>
             <div id="loginError" class="login-error">اسم المستخدم أو كلمة المرور غير صحيحة!</div>
-            <div class="form-group">
-                <label>اسم المستخدم:</label>
-                <input type="text" id="loginUser" placeholder="أدخل اسم المستخدم">
+            <div class="login-group">
+                <label>اسم المستخدم</label>
+                <input type="text" id="username" placeholder="أدخل اسم المستخدم" onkeydown="handleKeyDown(event)">
             </div>
-            <div class="form-group">
-                <label>كلمة المرور:</label>
-                <input type="password" id="loginPass" placeholder="أدخل كلمة المرور">
+            <div class="login-group">
+                <label>كلمة المرور</label>
+                <input type="password" id="password" placeholder="أدخل كلمة المرور" onkeydown="handleKeyDown(event)">
             </div>
-            <button class="btn" onclick="handleLogin()">دخول</button>
+            <button class="login-btn" onclick="login()">دخول</button>
         </div>
     </div>
 
-    <!-- لوحة التطبيق الرئيسية -->
-    <div id="app-screen">
-        <div class="app-container">
-            <!-- لوحة الإدخال -->
-            <div class="panel">
-                <div class="panel-header">
-                    <h2>إدخال بيانات المنتج</h2>
-                    <button class="btn-logout" onclick="handleLogout()">تسجيل خروج</button>
+    <!-- ================= محتوى التطبيق الرئيسي ================= -->
+    <div id="appContent">
+        <div class="no-print">
+            <h2 style="margin-top:0; color:#ff5722;">منظومة بطاقات عرض الأسعار - جسور</h2>
+            <div class="form-grid">
+                <div class="form-group">
+                    <label>اسم المنتج</label>
+                    <input type="text" id="name" placeholder="سماعات لاسلكية احترافية">
                 </div>
                 <div class="form-group">
-                    <label>اسم المنتج:</label>
-                    <input type="text" id="pName" placeholder="مثال: سماعة لاسلكية ذكية">
+                    <label>الكود</label>
+                    <input type="text" id="code" value="#CODE-JSR">
                 </div>
                 <div class="form-group">
-                    <label>رمز المنتج (Code):</label>
-                    <input type="text" id="pCode" placeholder="مثال: JSR-1024">
+                    <label>بلد المنشأ</label>
+                    <input type="text" id="origin" value="الصين">
                 </div>
                 <div class="form-group">
-                    <label>معلومات ومميزات المنتج:</label>
-                    <textarea id="pDesc" placeholder="اكتب تفاصيل ومميزات المنتج هنا..."></textarea>
+                    <label>السعر السابق (ID) - اختياري</label>
+                    <input type="text" id="oldPrice" placeholder="اتركه فارغاً إذا لم يوجد">
                 </div>
                 <div class="form-group">
-                    <label>السعر السابق:</label>
-                    <input type="text" id="pOldPrice" placeholder="مثال: 100,000">
+                    <label>السعر الجديد (ID)</label>
+                    <input type="text" id="newPrice" placeholder="99,000">
                 </div>
                 <div class="form-group">
-                    <label>السعر بعد العرض (الحالي):</label>
-                    <input type="text" id="pNewPrice" placeholder="مثال: 80,000">
+                    <label>عدد النسخ المطلوبة</label>
+                    <input type="number" id="qty" value="1" min="1">
                 </div>
-                <div class="form-group">
-                    <label>عدد النسخ للطباعة:</label>
-                    <input type="number" id="pCopies" value="1" min="1">
-                </div>
-                <button class="btn" onclick="addToQueue()">إضافة إلى قائمة الانتظار</button>
             </div>
-
-            <!-- قائمة الانتظار والتحكم بالطباعة -->
-            <div class="panel">
-                <h2>قائمة الانتظار للطباعة (<span id="queueCount">0</span>)</h2>
-                <div class="queue-list" id="queueList">
-                    <p style="text-align: center; color: #94a3b8; margin-top: 50px;">القائمة فارغة، قم بإضافة منتجات للطباعة.</p>
-                </div>
-                <button class="btn btn-print" onclick="printQueue()">طباعة جميع البطاقات دفعة واحدة</button>
-            </div>
+            <button class="btn btn-add" onclick="addTag()">+ إضافة البطاقة للقائمة</button>
+            <button class="btn btn-print" onclick="window.print()">طباعة الكل / حفظ كـ PDF</button>
         </div>
-    </div>
 
-    <div id="print-area"></div>
+        <div class="print-container" id="container"></div>
+    </div>
 
     <script>
-        let printQueueData = [];
-
-        function handleLogin() {
-            const user = document.getElementById('loginUser').value.trim();
-            const pass = document.getElementById('loginPass').value.trim();
+        // --- منطق تسجيل الدخول ---
+        function login() {
+            const user = document.getElementById('username').value.trim();
+            const pass = document.getElementById('password').value.trim();
             const errorDiv = document.getElementById('loginError');
 
             if (user === 'adminadmin' && pass === 'testtest') {
                 errorDiv.style.display = 'none';
-                document.getElementById('login-screen').style.display = 'none';
-                document.getElementById('app-screen').style.display = 'block';
+                
+                // الاستعانة بـ try/catch لتجنب توقف الصفحة إذا كان المتصفح يحظر الجلسات المحلية
+                try {
+                    sessionStorage.setItem('jusoor_auth', 'true');
+                } catch (e) {
+                    console.warn('التخزين المحلي غير متاح، يتم متابعة الدخول مؤقتاً');
+                }
+                
+                showApp();
             } else {
                 errorDiv.style.display = 'block';
             }
         }
 
-        function handleLogout() {
-            document.getElementById('loginUser').value = '';
-            document.getElementById('loginPass').value = '';
-            document.getElementById('app-screen').style.display = 'none';
-            document.getElementById('login-screen').style.display = 'flex';
+        function handleKeyDown(e) {
+            if (e.key === 'Enter') {
+                e.preventDefault();
+                login();
+            }
         }
 
-        function addToQueue() {
-            const name = document.getElementById('pName').value.trim();
-            const code = document.getElementById('pCode').value.trim();
-            const desc = document.getElementById('pDesc').value;
-            const oldPrice = document.getElementById('pOldPrice').value.trim();
-            const newPrice = document.getElementById('pNewPrice').value.trim();
-            const copies = parseInt(document.getElementById('pCopies').value) || 1;
+        function showApp() {
+            document.getElementById('loginScreen').style.display = 'none';
+            document.getElementById('appContent').style.display = 'block';
+        }
 
-            if (!name || !code || !oldPrice || !newPrice) {
-                alert('يرجى تعبئة الحقول الأساسية (الاسم، الرمز، والأسعار على الأقل).');
+        // التأكد من تسجيل الدخول السابق عند تحديث الصفحة
+        window.onload = function() {
+            try {
+                if (sessionStorage.getItem('jusoor_auth') === 'true') {
+                    showApp();
+                }
+            } catch (e) {
+                // في حال حظر الجلسات، سيتم طلب تسجيل الدخول عادياً
+            }
+        };
+
+        // --- منطق إدارة البطاقات ---
+        function addTag() {
+            const name = document.getElementById('name').value;
+            const code = document.getElementById('code').value;
+            const origin = document.getElementById('origin').value;
+            const oldPrice = document.getElementById('oldPrice').value;
+            const newPrice = document.getElementById('newPrice').value;
+            const qty = parseInt(document.getElementById('qty').value) || 1;
+
+            if(!name || !newPrice) {
+                alert('يرجى إدخال اسم المنتج والسعر الجديد على الأقل');
                 return;
             }
 
-            printQueueData.push({ name, code, desc, oldPrice, newPrice, copies });
-            
-            document.getElementById('pName').value = '';
-            document.getElementById('pCode').value = '';
-            document.getElementById('pDesc').value = '';
-            document.getElementById('pOldPrice').value = '';
-            document.getElementById('pNewPrice').value = '';
-            document.getElementById('pCopies').value = '1';
+            const container = document.getElementById('container');
 
-            updateQueueUI();
-        }
-
-        function removeFromQueue(index) {
-            printQueueData.splice(index, 1);
-            updateQueueUI();
-        }
-
-        function updateQueueUI() {
-            const listContainer = document.getElementById('queueList');
-            const countSpan = document.getElementById('queueCount');
-            
-            countSpan.textContent = printQueueData.reduce((acc, item) => acc + item.copies, 0);
-
-            if (printQueueData.length === 0) {
-                listContainer.innerHTML = '<p style="text-align: center; color: #94a3b8; margin-top: 50px;">القائمة فارغة، قم بإضافة منتجات للطباعة.</p>';
-                return;
+            for(let i=0; i < qty; i++) {
+                createCardElement(container, name, code, origin, oldPrice, newPrice);
             }
 
-            let html = '';
-            printQueueData.forEach((item, index) => {
-                html += `
-                    <div class="queue-item">
-                        <div class="queue-item-info">
-                            <strong>${item.name} (${item.code})</strong>
-                            السعر: ${item.newPrice} د.ع | النسخ: ${item.copies}
-                        </div>
-                        <button class="btn-delete" onclick="removeFromQueue(${index})">حذف</button>
+            document.getElementById('name').value = '';
+            document.getElementById('oldPrice').value = '';
+            document.getElementById('newPrice').value = '';
+        }
+
+        function createCardElement(container, name, code, origin, oldPrice, newPrice) {
+            const box = document.createElement('div');
+            box.className = 'card-container-box';
+
+            const actions = document.createElement('div');
+            actions.className = 'card-actions';
+            
+            const editBtn = document.createElement('button');
+            editBtn.className = 'action-btn edit';
+            editBtn.innerText = 'تعديل';
+            editBtn.onclick = function() {
+                editCard(box, card);
+            };
+
+            const deleteBtn = document.createElement('button');
+            deleteBtn.className = 'action-btn delete';
+            deleteBtn.innerText = 'حذف';
+            deleteBtn.onclick = function() {
+                box.remove();
+            };
+
+            actions.appendChild(editBtn);
+            actions.appendChild(deleteBtn);
+            box.appendChild(actions);
+
+            const card = document.createElement('div');
+            card.className = 'card-wrapper';
+            
+            updateCardContent(card, name, code, origin, oldPrice, newPrice);
+            box.appendChild(card);
+            container.appendChild(box);
+        }
+
+        function updateCardContent(card, name, code, origin, oldPrice, newPrice) {
+            let pricesHTML = '';
+            let pricesClass = 'card-prices';
+
+            if(oldPrice && oldPrice.trim() !== '') {
+                pricesHTML = `
+                    <del class="old-price-value">
+                        ${oldPrice}<span style="font-size: 12px; font-weight: 900;">ID</span>
+                    </del>
+                    <div class="new-price-value">
+                        ${newPrice}<span style="font-size: 15px; font-weight: 900;">ID</span>
                     </div>
                 `;
-            });
-            listContainer.innerHTML = html;
+            } else {
+                pricesClass += ' single-price';
+                pricesHTML = `
+                    <div class="new-price-value">
+                        ${newPrice}<span style="font-size: 18px; font-weight: 900;">ID</span>
+                    </div>
+                `;
+            }
+
+            card.innerHTML = `
+                <div class="card-header">جسور</div>
+                <div class="card-main">
+                    <div class="card-code">${code}</div>
+                    <h3 class="card-title">${name}</h3>
+                </div>
+                <div class="card_bottom card-bottom">
+                    <div class="card-origin">المنشأ: ${origin}</div>
+                    <div class="${pricesClass}">
+                        ${pricesHTML}
+                    </div>
+                </div>
+            `;
         }
 
-        function printQueue() {
-            if (printQueueData.length === 0) {
-                alert('قائمة الانتظار فارغة!');
+        function editCard(box, card) {
+            const currentTitle = card.querySelector('.card-title').innerText;
+            const currentCode = card.querySelector('.card-code').innerText;
+            const currentOriginText = card.querySelector('.card-origin').innerText;
+            const currentOrigin = currentOriginText.replace('المنشأ: ', '').trim();
+            
+            const oldDel = card.querySelector('.old-price-value');
+            let currentOld = '';
+            if (oldDel) {
+                currentOld = oldDel.innerText.replace('ID', '').trim();
+            }
+            
+            const newPriceDiv = card.querySelector('.new-price-value');
+            const currentNew = newPriceDiv.innerText.replace('ID', '').trim();
+
+            const newNameVal = prompt('تعديل اسم المنتج:', currentTitle);
+            if (newNameVal === null) return;
+
+            const newCodeVal = prompt('تعديل الكود:', currentCode);
+            const newOriginVal = prompt('تعديل بلد المنشأ:', currentOrigin);
+            const newOldVal = prompt('تعديل السعر السابق (اتركه فارغاً إذا لم يوجد):', currentOld);
+            const newNewVal = prompt('تعديل السعر الجديد:', currentNew);
+
+            if (!newNameVal || !newNewVal) {
+                alert('اسم المنتج والسعر الجديد حقلان إجباريان!');
                 return;
             }
 
-            const printArea = document.getElementById('print-area');
-            let cardsHtml = '';
-
-            printQueueData.forEach(item => {
-                for (let i = 0; i < item.copies; i++) {
-                    const formattedDesc = item.desc ? item.desc.replace(/\n/g, '<br>') : 'لا توجد تفاصيل إضافية.';
-
-                    cardsHtml += `
-                        <div class="card-container page-break">
-                            <div class="top-banner">جسور</div>
-                            <div class="header-info-section">
-                                <div class="product-name">${item.name}</div>
-                            </div>
-                            <div class="card-body">
-                                <div class="left-content-area">
-                                    <div class="product-info-box">
-                                        <div>
-                                            <div class="product-info-title">معلومات المنتج:</div>
-                                            <div class="product-info-text">${formattedDesc}</div>
-                                        </div>
-                                        <div class="product-code-box">
-                                            <span class="product-code-label">رمز المنتج</span>
-                                            <span class="product-code-value">${item.code}</span>
-                                        </div>
-                                    </div>
-                                </div>
-                                <div class="discount-box">
-                                    <div class="discount-percentage">عرض خاص</div>
-                                </div>
-                            </div>
-                            <div class="price-section">
-                                <div class="price-box">
-                                    <div class="price-label">السعر السابق</div>
-                                    <div class="old-price">${item.oldPrice} <span class="currency">د.ع</span></div>
-                                </div>
-                                <div class="price-box">
-                                    <div class="price-label">السعر بعد العرض</div>
-                                    <div class="new-price">${item.newPrice} <span class="currency">د.ع</span></div>
-                                </div>
-                            </div>
-                        </div>
-                    `;
-                }
-            });
-
-            printArea.innerHTML = cardsHtml;
-            window.print();
+            updateCardContent(card, newNameVal, newCodeVal, newOriginVal, newOldVal, newNewVal);
         }
     </script>
 </body>
