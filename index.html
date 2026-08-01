@@ -1,0 +1,661 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <title>عرض سعر جسور</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;900&display=swap');
+
+        * {
+            box-sizing: border-box;
+            font-family: 'Cairo', sans-serif;
+        }
+
+        body {
+            margin: 0;
+            padding: 20px;
+            background-color: #f4f6f9;
+            color: #334155;
+        }
+
+        /* شاشة تسجيل الدخول */
+        #login-screen {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 80vh;
+        }
+
+        .login-card {
+            background: #ffffff;
+            padding: 30px;
+            border-radius: 12px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+            width: 100%;
+            max-width: 400px;
+            text-align: center;
+        }
+
+        .login-card h2 {
+            color: #ff5100;
+            margin-bottom: 20px;
+            font-size: 22px;
+            border-bottom: 2px solid #ffedd5;
+            padding-bottom: 10px;
+        }
+
+        .login-error {
+            color: #ef4444;
+            font-size: 13px;
+            margin-bottom: 10px;
+            display: none;
+        }
+
+        /* لوحة التطبيق الأساسية (مخفية حتى يتم تسجيل الدخول) */
+        #app-screen {
+            display: none;
+        }
+
+        .app-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+        }
+
+        @media (max-width: 900px) {
+            .app-container {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        .panel {
+            background: #ffffff;
+            padding: 20px;
+            border-radius: 12px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+        }
+
+        .panel-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 2px solid #ffedd5;
+            padding-bottom: 10px;
+            margin-bottom: 15px;
+        }
+
+        .panel-header h2 {
+            margin: 0;
+            color: #ff5100;
+            font-size: 20px;
+            border: none;
+            padding: 0;
+        }
+
+        .btn-logout {
+            background: #ef4444;
+            color: white;
+            border: none;
+            padding: 5px 12px;
+            border-radius: 6px;
+            font-size: 12px;
+            cursor: pointer;
+            font-weight: 700;
+        }
+
+        .btn-logout:hover {
+            background: #dc2626;
+        }
+
+        .form-group {
+            margin-bottom: 12px;
+        }
+
+        label {
+            display: block;
+            font-size: 13px;
+            font-weight: 700;
+            margin-bottom: 5px;
+            color: #475569;
+        }
+
+        input, textarea {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #cbd5e1;
+            border-radius: 8px;
+            font-size: 14px;
+            outline: none;
+            transition: border-color 0.2s;
+        }
+
+        input:focus, textarea:focus {
+            border-color: #ff5100;
+        }
+
+        textarea {
+            resize: vertical;
+            height: 70px;
+        }
+
+        .btn {
+            background-color: #ff5100;
+            color: #ffffff;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 8px;
+            font-size: 14px;
+            font-weight: 700;
+            cursor: pointer;
+            width: 100%;
+            transition: background-color 0.2s;
+            margin-top: 5px;
+        }
+
+        .btn:hover {
+            background-color: #e04500;
+        }
+
+        .btn-print {
+            background-color: #0f172a;
+            margin-top: 15px;
+        }
+
+        .btn-print:hover {
+            background-color: #1e293b;
+        }
+
+        .queue-list {
+            max-height: 350px;
+            overflow-y: auto;
+            border: 1px solid #e2e8f0;
+            border-radius: 8px;
+            padding: 10px;
+            background: #f8fafc;
+        }
+
+        .queue-item {
+            background: #ffffff;
+            padding: 10px;
+            border-radius: 6px;
+            border: 1px solid #e2e8f0;
+            margin-bottom: 8px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .queue-item-info {
+            font-size: 12px;
+        }
+
+        .queue-item-info strong {
+            color: #ff5100;
+            display: block;
+            font-size: 14px;
+        }
+
+        .btn-delete {
+            background: #ef4444;
+            color: white;
+            border: none;
+            padding: 5px 10px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 12px;
+        }
+
+        .btn-delete:hover {
+            background: #dc2626;
+        }
+
+        #print-area {
+            display: none;
+        }
+
+        @media print {
+            body * {
+                visibility: hidden;
+            }
+            #print-area, #print-area * {
+                visibility: visible;
+            }
+            #print-area {
+                display: block;
+                position: absolute;
+                top: 0;
+                right: 0;
+                width: 100%;
+            }
+            @page {
+                size: 105mm 148mm;
+                margin: 0;
+            }
+            .page-break {
+                page-break-after: always;
+                break-after: page;
+            }
+        }
+
+        .card-container {
+            width: 105mm;
+            height: 148mm;
+            background: #ffffff;
+            position: relative;
+            overflow: hidden;
+            box-sizing: border-box;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            padding: 6mm;
+            padding-top: 0;
+            -webkit-print-color-adjust: exact;
+            print-color-adjust: exact;
+        }
+
+        .top-banner {
+            width: calc(100% + 12mm);
+            margin-right: -6mm;
+            margin-left: -6mm;
+            height: 16mm;
+            background-color: #ff5100 !important;
+            display: flex;
+            align-items: center;
+            justify-content: flex-start;
+            padding-right: 10mm;
+            color: #ffffff;
+            font-size: 22px;
+            font-weight: 900;
+            letter-spacing: 1.2px;
+            margin-bottom: 3mm;
+            position: relative;
+            -webkit-print-color-adjust: exact;
+            print-color-adjust: exact;
+        }
+
+        .top-banner::after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            height: 1.5mm;
+            background: rgba(0, 0, 0, 0.15);
+        }
+
+        .header-info-section {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 3mm;
+        }
+
+        .product-name {
+            font-size: 18px;
+            font-weight: 900;
+            color: #1e293b;
+            background: #f8fafc;
+            padding: 2.5mm 5mm;
+            border-radius: 8px;
+            border: 1px solid #e2e8f0;
+            -webkit-print-color-adjust: exact;
+            print-color-adjust: exact;
+            width: 100%;
+            text-align: right;
+        }
+
+        .card-body {
+            display: flex;
+            gap: 3mm;
+            flex: 1;
+            align-items: stretch;
+            margin-bottom: 3mm;
+        }
+
+        .left-content-area {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            justify-content: flex-start;
+        }
+
+        .product-info-box {
+            background: #fffaf5 !important;
+            border: 1px solid #ffedd5;
+            border-radius: 8px;
+            padding: 5mm;
+            text-align: right;
+            height: 100%;
+            box-sizing: border-box;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            -webkit-print-color-adjust: exact;
+            print-color-adjust: exact;
+        }
+
+        .product-info-title {
+            font-size: 16px;
+            font-weight: 900;
+            color: #ff5100;
+            margin-bottom: 2mm;
+        }
+
+        .product-info-text {
+            font-size: 15px;
+            color: #1e293b;
+            line-height: 1.7;
+            font-weight: 700;
+            white-space: pre-wrap;
+            flex: 1;
+        }
+
+        .product-code-box {
+            background: #ffffff !important;
+            border: 2px solid #ff5100;
+            border-radius: 6px;
+            padding: 3mm 5mm;
+            text-align: center;
+            align-self: flex-start;
+            margin-top: 3mm;
+            -webkit-print-color-adjust: exact;
+            print-color-adjust: exact;
+        }
+
+        .product-code-label {
+            font-size: 10px;
+            color: #64748b;
+            font-weight: 700;
+            display: block;
+            line-height: 1;
+            margin-bottom: 1mm;
+        }
+
+        .product-code-value {
+            font-size: 17px;
+            font-weight: 900;
+            color: #ff5100;
+            letter-spacing: 0.5px;
+            line-height: 1;
+        }
+
+        .discount-box {
+            width: 22mm;
+            background: linear-gradient(135deg, #ff5100, #e04500) !important;
+            color: #ffffff;
+            border-radius: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 0;
+            margin-left: -6mm; 
+            margin-top: 0;     
+            margin-bottom: 0;   
+            -webkit-print-color-adjust: exact;
+            print-color-adjust: exact;
+        }
+
+        .discount-percentage {
+            font-size: 22px;
+            font-weight: 900;
+            writing-mode: vertical-rl;
+            text-orientation: mixed;
+            letter-spacing: 1px;
+            line-height: 1;
+            transform: rotate(180deg);
+            text-align: center;
+        }
+
+        .price-section {
+            width: calc(100% + 12mm);
+            margin-right: -6mm;
+            margin-left: -6mm;
+            background: #ff5100 !important;
+            color: #ffffff;
+            display: flex;
+            justify-content: space-around;
+            align-items: center;
+            padding: 4mm 0;
+            -webkit-print-color-adjust: exact;
+            print-color-adjust: exact;
+        }
+
+        .price-box {
+            text-align: center;
+        }
+
+        .price-label {
+            font-size: 11px;
+            color: #ffedd5;
+            font-weight: 700;
+            margin-bottom: 1mm;
+        }
+
+        .old-price {
+            font-size: 18px;
+            color: #ffd8cc;
+            text-decoration: line-through;
+            font-weight: 800;
+        }
+
+        .new-price {
+            font-size: 28px;
+            color: #ffffff;
+            font-weight: 900;
+            line-height: 1.1;
+        }
+
+        .currency {
+            font-size: 13px;
+            font-weight: 900;
+            margin-right: 2px;
+        }
+    </style>
+</head>
+<body>
+
+    <!-- شاشة تسجيل الدخول -->
+    <div id="login-screen">
+        <div class="login-card">
+            <h2>تسجيل دخول - عرض سعر جسور</h2>
+            <div id="loginError" class="login-error">اسم المستخدم أو كلمة المرور غير صحيحة!</div>
+            <div class="form-group">
+                <label>اسم المستخدم:</label>
+                <input type="text" id="loginUser" placeholder="أدخل اسم المستخدم">
+            </div>
+            <div class="form-group">
+                <label>كلمة المرور:</label>
+                <input type="password" id="loginPass" placeholder="أدخل كلمة المرور">
+            </div>
+            <button class="btn" onclick="handleLogin()">دخول</button>
+        </div>
+    </div>
+
+    <!-- لوحة التطبيق الرئيسية -->
+    <div id="app-screen">
+        <div class="app-container">
+            <!-- لوحة الإدخال -->
+            <div class="panel">
+                <div class="panel-header">
+                    <h2>إدخال بيانات المنتج</h2>
+                    <button class="btn-logout" onclick="handleLogout()">تسجيل خروج</button>
+                </div>
+                <div class="form-group">
+                    <label>اسم المنتج:</label>
+                    <input type="text" id="pName" placeholder="مثال: سماعة لاسلكية ذكية">
+                </div>
+                <div class="form-group">
+                    <label>رمز المنتج (Code):</label>
+                    <input type="text" id="pCode" placeholder="مثال: JSR-1024">
+                </div>
+                <div class="form-group">
+                    <label>معلومات ومميزات المنتج:</label>
+                    <textarea id="pDesc" placeholder="اكتب تفاصيل ومميزات المنتج هنا..."></textarea>
+                </div>
+                <div class="form-group">
+                    <label>السعر السابق:</label>
+                    <input type="text" id="pOldPrice" placeholder="مثال: 100,000">
+                </div>
+                <div class="form-group">
+                    <label>السعر بعد العرض (الحالي):</label>
+                    <input type="text" id="pNewPrice" placeholder="مثال: 80,000">
+                </div>
+                <div class="form-group">
+                    <label>عدد النسخ للطباعة:</label>
+                    <input type="number" id="pCopies" value="1" min="1">
+                </div>
+                <button class="btn" onclick="addToQueue()">إضافة إلى قائمة الانتظار</button>
+            </div>
+
+            <!-- قائمة الانتظار والتحكم بالطباعة -->
+            <div class="panel">
+                <h2>قائمة الانتظار للطباعة (<span id="queueCount">0</span>)</h2>
+                <div class="queue-list" id="queueList">
+                    <p style="text-align: center; color: #94a3b8; margin-top: 50px;">القائمة فارغة، قم بإضافة منتجات للطباعة.</p>
+                </div>
+                <button class="btn btn-print" onclick="printQueue()">طباعة جميع البطاقات دفعة واحدة</button>
+            </div>
+        </div>
+    </div>
+
+    <div id="print-area"></div>
+
+    <script>
+        let printQueueData = [];
+
+        function handleLogin() {
+            const user = document.getElementById('loginUser').value.trim();
+            const pass = document.getElementById('loginPass').value.trim();
+            const errorDiv = document.getElementById('loginError');
+
+            if (user === 'adminadmin' && pass === 'testtest') {
+                errorDiv.style.display = 'none';
+                document.getElementById('login-screen').style.display = 'none';
+                document.getElementById('app-screen').style.display = 'block';
+            } else {
+                errorDiv.style.display = 'block';
+            }
+        }
+
+        function handleLogout() {
+            document.getElementById('loginUser').value = '';
+            document.getElementById('loginPass').value = '';
+            document.getElementById('app-screen').style.display = 'none';
+            document.getElementById('login-screen').style.display = 'flex';
+        }
+
+        function addToQueue() {
+            const name = document.getElementById('pName').value.trim();
+            const code = document.getElementById('pCode').value.trim();
+            const desc = document.getElementById('pDesc').value;
+            const oldPrice = document.getElementById('pOldPrice').value.trim();
+            const newPrice = document.getElementById('pNewPrice').value.trim();
+            const copies = parseInt(document.getElementById('pCopies').value) || 1;
+
+            if (!name || !code || !oldPrice || !newPrice) {
+                alert('يرجى تعبئة الحقول الأساسية (الاسم، الرمز، والأسعار على الأقل).');
+                return;
+            }
+
+            printQueueData.push({ name, code, desc, oldPrice, newPrice, copies });
+            
+            document.getElementById('pName').value = '';
+            document.getElementById('pCode').value = '';
+            document.getElementById('pDesc').value = '';
+            document.getElementById('pOldPrice').value = '';
+            document.getElementById('pNewPrice').value = '';
+            document.getElementById('pCopies').value = '1';
+
+            updateQueueUI();
+        }
+
+        function removeFromQueue(index) {
+            printQueueData.splice(index, 1);
+            updateQueueUI();
+        }
+
+        function updateQueueUI() {
+            const listContainer = document.getElementById('queueList');
+            const countSpan = document.getElementById('queueCount');
+            
+            countSpan.textContent = printQueueData.reduce((acc, item) => acc + item.copies, 0);
+
+            if (printQueueData.length === 0) {
+                listContainer.innerHTML = '<p style="text-align: center; color: #94a3b8; margin-top: 50px;">القائمة فارغة، قم بإضافة منتجات للطباعة.</p>';
+                return;
+            }
+
+            let html = '';
+            printQueueData.forEach((item, index) => {
+                html += `
+                    <div class="queue-item">
+                        <div class="queue-item-info">
+                            <strong>${item.name} (${item.code})</strong>
+                            السعر: ${item.newPrice} د.ع | النسخ: ${item.copies}
+                        </div>
+                        <button class="btn-delete" onclick="removeFromQueue(${index})">حذف</button>
+                    </div>
+                `;
+            });
+            listContainer.innerHTML = html;
+        }
+
+        function printQueue() {
+            if (printQueueData.length === 0) {
+                alert('قائمة الانتظار فارغة!');
+                return;
+            }
+
+            const printArea = document.getElementById('print-area');
+            let cardsHtml = '';
+
+            printQueueData.forEach(item => {
+                for (let i = 0; i < item.copies; i++) {
+                    const formattedDesc = item.desc ? item.desc.replace(/\n/g, '<br>') : 'لا توجد تفاصيل إضافية.';
+
+                    cardsHtml += `
+                        <div class="card-container page-break">
+                            <div class="top-banner">جسور</div>
+                            <div class="header-info-section">
+                                <div class="product-name">${item.name}</div>
+                            </div>
+                            <div class="card-body">
+                                <div class="left-content-area">
+                                    <div class="product-info-box">
+                                        <div>
+                                            <div class="product-info-title">معلومات المنتج:</div>
+                                            <div class="product-info-text">${formattedDesc}</div>
+                                        </div>
+                                        <div class="product-code-box">
+                                            <span class="product-code-label">رمز المنتج</span>
+                                            <span class="product-code-value">${item.code}</span>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="discount-box">
+                                    <div class="discount-percentage">عرض خاص</div>
+                                </div>
+                            </div>
+                            <div class="price-section">
+                                <div class="price-box">
+                                    <div class="price-label">السعر السابق</div>
+                                    <div class="old-price">${item.oldPrice} <span class="currency">د.ع</span></div>
+                                </div>
+                                <div class="price-box">
+                                    <div class="price-label">السعر بعد العرض</div>
+                                    <div class="new-price">${item.newPrice} <span class="currency">د.ع</span></div>
+                                </div>
+                            </div>
+                        </div>
+                    `;
+                }
+            });
+
+            printArea.innerHTML = cardsHtml;
+            window.print();
+        }
+    </script>
+</body>
+</html>
